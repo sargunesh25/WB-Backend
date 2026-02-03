@@ -62,3 +62,47 @@ exports.login = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+exports.subscribe = async (req, res) => {
+    const { phoneNumber } = req.body;
+
+    if (!phoneNumber) {
+        return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    try {
+        exports.subscribe = async (req, res) => {
+            const { phoneNumber } = req.body;
+
+            if (!phoneNumber) {
+                return res.status(400).json({ error: 'Phone number is required' });
+            }
+
+            try {
+                // Check if phone already registered for discount
+                const check = await db.query('SELECT * FROM discount_signups WHERE phone_number = $1', [phoneNumber]);
+
+                if (check.rows.length === 0) {
+                    // Store new signup
+                    await db.query(
+                        'INSERT INTO discount_signups (phone_number) VALUES ($1)',
+                        [phoneNumber]
+                    );
+                }
+
+                // Return success WITHOUT token (User remains guest)
+                return res.status(200).json({
+                    message: 'Discount activated!',
+                    discountActive: true
+                });
+
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ error: 'Server error' });
+            }
+        };
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
